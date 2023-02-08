@@ -31,6 +31,7 @@ class ProgramWindow(QMainWindow):
         self.cipher_selector_box.currentIndexChanged.connect(self.change_crypto)
 
     def load_modules(self):
+        """ Load all cipher modules from ./cryptos/folder"""
         ind = 0
         module_list = [f for f in os.listdir("cryptos") if os.path.isfile(os.path.join("cryptos", f))]
         for module_name in module_list:
@@ -44,35 +45,42 @@ class ProgramWindow(QMainWindow):
                 print(e)
 
     def open_text(self) -> str:
+        """ Returns current open text"""
         return self.open_text_menu.toPlainText()
 
     def cipher_text(self) -> str:
+        """ Return current cipher text"""
         return self.cipher_text_menu.toPlainText()
 
     def check_encryption(self):
+        """ Check for non-empty open text area """
         if self.open_text():
             self.encrypt_button.setEnabled(1)
         else:
             self.encrypt_button.setEnabled(0)
 
     def check_decryption(self):
+        """ Check for non-empty cipher text area """
         if self.cipher_text():
             self.decrypt_button.setEnabled(1)
         else:
             self.decrypt_button.setEnabled(0)
 
     def change_crypto(self):
-        print(self.get_current_module().page)
+        """ Open settings menu for selected cipher method"""
         self.cipher_selector.setCurrentIndex(self.get_current_module().page)
 
     def get_current_module(self):
+        """ Returns currently selected cipher module """
         return self.modules[self.cipher_selector_box.currentText()]
 
     def encrypt(self):
+        """ Calls encrypt from cipher module and sets the result text """
         encrypted_text = self.get_current_module().encrypt()
         self.cipher_text_menu.setPlainText(encrypted_text)
 
     def decrypt(self):
+        """ Calls decrypt from cipher module and sets the result text """
         decrypted_text = self.get_current_module().decrypt()
         self.open_text_menu.setPlainText(decrypted_text)
 
