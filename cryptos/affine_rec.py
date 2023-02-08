@@ -55,7 +55,7 @@ class Crypto(QWidget):
         try:
             # load keys
             a1, b1 = int(self.key_a1.value()), int(self.key_b1.value())
-            a2, b2 = int(self.key_a1.value()), int(self.key_b1.value())
+            a2, b2 = int(self.key_a2.value()), int(self.key_b2.value())
         except ValueError:
             dialog = WarnDialog("Ошибка", "Ключи заданы неверно")
             dialog.exec_()
@@ -76,10 +76,12 @@ class Crypto(QWidget):
                     if i < 2:
                         a, b = keys[i][0], keys[i][1]
                     else:
-                        a, b = keys[i - 1][0] * keys[i - 2][0], keys[i - 1][0] + keys[i - 2][0]  # generate new keys
+                        a, b = (keys[i - 1][0] * keys[i - 2][0]) % len(alph), \
+                            (keys[i - 1][1] + keys[i - 2][1]) % len(alph)  # generate new keys
                         keys.append((a, b))
                     ia = pow(a, -1, len(alph))  # inverted by module
                     decrypted += alph[((alph_rev[s] - b) * ia) % len(alph)]  # cipher formula
+                    print(f"x=({alph_rev[s]}-{b})×{ia}={((alph_rev[s] - b) * ia) % len(alph)} mod 26")
                     i += 1
 
             except KeyError:
@@ -99,7 +101,7 @@ class Crypto(QWidget):
         try:
             # load keys
             a1, b1 = int(self.key_a1.value()), int(self.key_b1.value())
-            a2, b2 = int(self.key_a1.value()), int(self.key_b1.value())
+            a2, b2 = int(self.key_a2.value()), int(self.key_b2.value())
         except ValueError:
             dialog = WarnDialog("Ошибка", "Ключи заданы неверно")
             dialog.exec_()
@@ -116,12 +118,14 @@ class Crypto(QWidget):
                         # detect punctuation
                         encrypted += s
                         continue
-
+                    print(s, i)
                     if i < 2:
                         a, b = keys[i][0], keys[i][1]
                     else:
-                        a, b = keys[i - 1][0] * keys[i - 2][0], keys[i - 1][0] + keys[i - 2][0]  # generate new keys
+                        a, b = (keys[i - 1][0] * keys[i - 2][0]) % 26, \
+                            (keys[i - 1][1] + keys[i - 2][1]) % 26  # generate new keys
                         keys.append((a, b))
+
                     encrypted += alph[(alph_rev[s] * a + b) % len(alph)]  # формула
                     i += 1
 

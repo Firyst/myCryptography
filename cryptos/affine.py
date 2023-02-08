@@ -71,7 +71,6 @@ class Crypto(QWidget):
                         # detect punctuation
                         decrypted += s
                         continue
-
                     decrypted += alph[((alph_rev[s] - b) * ia) % len(alph)]  # формула
             except KeyError:
                 dialog = WarnDialog("Ошибка", f"Символ <{s}> отсутсвует в заданном алфавите.")
