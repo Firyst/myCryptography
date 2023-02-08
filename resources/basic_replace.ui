@@ -22,20 +22,17 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="4,2">
+    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
      <item>
       <widget class="QLineEdit" name="alph0"/>
      </item>
      <item>
-      <widget class="QPushButton" name="auto_button">
+      <widget class="QComboBox" name="alphabet_sel">
        <property name="maximumSize">
         <size>
          <width>160</width>
          <height>16777215</height>
         </size>
-       </property>
-       <property name="text">
-        <string>Авто</string>
        </property>
       </widget>
      </item>

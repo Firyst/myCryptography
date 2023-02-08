@@ -1,0 +1,8 @@
+{
+  "A-Z" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "a-z" : "abcdefghijklmnopqrstuvwxyz",
+  "Aa-Zz" : "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz",
+  "a-zA-z" : "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "А-Я" : "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+  "а-я": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+}

@@ -29,6 +29,12 @@ class ProgramWindow(QMainWindow):
         self.encrypt_button.clicked.connect(self.encrypt)
         self.decrypt_button.clicked.connect(self.decrypt)
         self.cipher_selector_box.currentIndexChanged.connect(self.change_crypto)
+        self.clear_button.clicked.connect(self.clear)
+
+    def clear(self):
+        """ Clear both fields """
+        self.cipher_text_menu.setPlainText("")
+        self.open_text_menu.setPlainText("")
 
     def load_modules(self):
         """ Load all cipher modules from ./cryptos/folder"""

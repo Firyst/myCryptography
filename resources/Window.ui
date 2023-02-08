@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>My Cryptography</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -93,6 +93,13 @@
          <widget class="QComboBox" name="cipher_selector_box"/>
         </item>
         <item>
+         <widget class="QCheckBox" name="punctuation">
+          <property name="text">
+           <string>Игн. пунктуацию</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -106,7 +113,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="clear_button">
           <property name="text">
            <string>Очистить</string>
           </property>
