@@ -3,7 +3,6 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
 import os
-import cryptos.basic_replace
 import importlib
 from PyQt5 import QtGui
 

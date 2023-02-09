@@ -8,6 +8,38 @@ MODULE_NAME = "Аффинный"
 PUNC = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
 
+def encrypt(message, alph, ignore_punc: bool, a: int, b: int) -> str:
+    alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
+    encrypted = ""
+    s = "?"
+    for s in message:
+        if ignore_punc and s in PUNC:
+            # detect punctuation
+            encrypted += s
+            continue
+
+        encrypted += alph[(alph_rev[s] * a + b) % len(alph)]  # формула
+
+    return encrypted
+
+
+def decrypt(message, alph, ignore_punc: bool, a: int, b: int) -> str:
+    alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
+    ia = pow(a, -1, len(alph))
+    # crypto begin
+    decrypted = ""
+    s = "?"
+
+    for s in message:
+        if ignore_punc and s in PUNC:
+            # detect punctuation
+            decrypted += s
+            continue
+        decrypted += alph[((alph_rev[s] - b) * ia) % len(alph)]  # формула
+
+    return decrypted
+
+
 class Crypto(QWidget):
     def __init__(self, parent: ProgramWindow, page):
         super().__init__()
@@ -38,45 +70,24 @@ class Crypto(QWidget):
         self.alph0.setText(alph)
         self.alphabet_sel.setCurrentIndex(0)
 
-    def move_left(self):
-        text = self.alph1.text()
-        if text:
-            self.alph1.setText(text[1:] + text[0])
-
-    def move_right(self):
-        text = self.alph1.text()
-        if text:
-            self.alph1.setText(text[-1] + text[:-1])
-
-    def decrypt(self) -> str:
+    def decrypt(self):
         alph = list(self.alph0.text())
-        alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
         ignore_punc = self.parent_window.punctuation.isChecked()
 
         try:
             # load keys
             a, b = int(self.key_a.value()), int(self.key_b.value())
-            ia = pow(a, -1, len(alph))
         except ValueError:
             dialog = WarnDialog("Ошибка", "Ключи заданы неверно")
             dialog.exec_()
             return ''
         if math.gcd(len(alph), a) == 1:
-            # crypto begin
-            decrypted = ""
-            s = "?"
             try:
-                for s in self.parent_window.cipher_text():
-                    if ignore_punc and s in PUNC:
-                        # detect punctuation
-                        decrypted += s
-                        continue
-                    decrypted += alph[((alph_rev[s] - b) * ia) % len(alph)]  # формула
+                return decrypt(self.parent_window.cipher_text(), alph, ignore_punc, a, b)
             except KeyError:
-                dialog = WarnDialog("Ошибка", f"Символ <{s}> отсутсвует в заданном алфавите.")
+                dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
                 dialog.exec_()
                 return ""
-            return decrypted
         else:
             dialog = WarnDialog("Ошибка", "Числа a и m должны быть взаимно простыми")
             dialog.exec_()
@@ -84,32 +95,22 @@ class Crypto(QWidget):
 
     def encrypt(self) -> str:
         alph = list(self.alph0.text())
-        alph_rev = dict(zip(alph, range(len(alph))))  # создать обратный словарь для более быстрой работы
         ignore_punc = self.parent_window.punctuation.isChecked()
 
         try:
+            # load keys
             a, b = int(self.key_a.value()), int(self.key_b.value())
         except ValueError:
             dialog = WarnDialog("Ошибка", "Ключи заданы неверно")
             dialog.exec_()
             return ''
         if math.gcd(len(alph), a) == 1:
-            # crypto begin
-            encrypted = ""
-            s = "?"
             try:
-                for s in self.parent_window.open_text():
-                    if ignore_punc and s in PUNC:
-                        # detect punctuation
-                        encrypted += s
-                        continue
-
-                    encrypted += alph[(alph_rev[s] * a + b) % len(alph)]  # формула
+                return encrypt(self.parent_window.open_text(), alph, ignore_punc, a, b)
             except KeyError:
-                dialog = WarnDialog("Ошибка", f"Символ <{s}> отсутсвует в заданном алфавите.")
+                dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
                 dialog.exec_()
                 return ""
-            return encrypted
         else:
             dialog = WarnDialog("Ошибка", "Числа a и m должны быть взаимно простыми")
             dialog.exec_()

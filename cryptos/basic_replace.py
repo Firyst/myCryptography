@@ -7,6 +7,23 @@ MODULE_NAME = "Простая замена"
 PUNC = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
 
+def encrypt(message, alph0, alph1, ignore_punc: bool):
+    encrypted = ""
+    replaces = dict(zip(alph0, alph1))
+    s = "?"
+    for s in message:
+        if ignore_punc and s in PUNC:
+            # check if is punctuation
+            encrypted += s
+        else:
+            encrypted += replaces[s]
+    return encrypted
+
+
+def decrypt(message, alph0, alph1, ignore_punc: bool):
+    return encrypt(message, alph1, alph0, ignore_punc)  # same as encrypt but with swapped alphabets
+
+
 class Crypto(QWidget):
     def __init__(self, parent: ProgramWindow, page):
         super().__init__()
@@ -56,21 +73,12 @@ class Crypto(QWidget):
         ignore_punc = self.parent_window.punctuation.isChecked()
         alph0, alph1 = self.alph0.text(), self.alph1.text()
         if len(alph0) == len(alph1):
-            encrypted = ""
-            replaces = dict(zip(alph0, alph1))
-            s = "?"
             try:
-                for s in self.parent_window.open_text():
-                    if ignore_punc and s in PUNC:
-                        # check if is punctuation
-                        encrypted += s
-                    else:
-                        encrypted += replaces[s]
+                return encrypt(self.parent_window.open_text(), alph0, alph1, ignore_punc)
             except KeyError:
-                dialog = WarnDialog("Ошибка", f"Символ <{s}> отсутсвует в заданном алфавите.")
+                dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
                 dialog.exec_()
                 return ""
-            return encrypted
         else:
             dialog = WarnDialog("Ошибка", "Длина алфавитов не совпадает")
             dialog.exec_()
@@ -78,23 +86,14 @@ class Crypto(QWidget):
 
     def decrypt(self):
         ignore_punc = self.parent_window.punctuation.isChecked()
-        alph1, alph0 = self.alph0.text(), self.alph1.text()
+        alph0, alph1 = self.alph0.text(), self.alph1.text()
         if len(alph0) == len(alph1):
-            decrypted = ""
-            replaces = dict(zip(alph0, alph1))
-            s = "?"
             try:
-                for s in self.parent_window.cipher_text():
-                    if ignore_punc and s in PUNC:
-                        # check if is punctuation
-                        decrypted += s
-                    else:
-                        decrypted += replaces[s]
+                return decrypt(self.parent_window.cipher_text(), alph0, alph1, ignore_punc)
             except KeyError:
-                dialog = WarnDialog("Ошибка", f"Символ <{s}> отсутсвует в заданном алфавите.")
+                dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
                 dialog.exec_()
                 return ""
-            return decrypted
         else:
             dialog = WarnDialog("Ошибка", "Длина алфавитов не совпадает")
             dialog.exec_()
