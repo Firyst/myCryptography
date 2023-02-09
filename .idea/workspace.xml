@@ -41,7 +41,7 @@
       <recent name="C:\Users\Philipp\PycharmProjects\myCryptography\cryptos" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.frequency_analysis">
+  <component name="RunManager" selected="Python.affine_rec_bruteforce">
     <configuration name="affine_bruteforce" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="myCryptography" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -149,10 +149,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.frequency_analysis" />
-        <item itemvalue="Python.main" />
         <item itemvalue="Python.affine_rec_bruteforce" />
         <item itemvalue="Python.test" />
+        <item itemvalue="Python.frequency_analysis" />
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.affine_bruteforce" />
       </list>
     </recent_temporary>

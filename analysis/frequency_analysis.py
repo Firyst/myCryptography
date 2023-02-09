@@ -1,7 +1,8 @@
 from string import punctuation, digits, ascii_lowercase
 import math
 
-WHITELIST = ascii_lowercase + " "
+WHITELIST = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ "
+
 
 def filter_text(text, whitelist=WHITELIST):
     res = ""
@@ -19,17 +20,17 @@ def scan_text(text, whitelist=WHITELIST):
     return res
 
 
-SCAN_FILE = "data/english1.txt"
+SCAN_FILE = "data/russian1.txt"
 MSG_FILE = "data/message1.txt"
 
 with open(SCAN_FILE, "r", encoding="utf8") as f:
-    default_data = scan_text(f.read().lower())
+    default_data = scan_text(f.read().upper())
 
 with open(MSG_FILE, "r", encoding="utf8") as f:
-    crypto_text = f.read().lower()
+    crypto_text = f.read().upper()
     crypto_data = scan_text(crypto_text)
 
-with open(MSG_FILE, "w") as f:
+with open(MSG_FILE, "w", encoding="utf8") as f:
     f.write(filter_text(crypto_text))
 
 replaces = dict()

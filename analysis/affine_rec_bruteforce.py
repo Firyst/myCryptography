@@ -5,8 +5,8 @@ from cryptos.affine_rec import decrypt
 
 d = enchant.Dict("en_US")
 
-alphabet = " abcdefghijklmnopqrstuvwxyz"
-text = "livfdsdznswnomxjzbpnktzjbswvcsjckdvgl"
+alphabet = "abcdefghijklmnopqrstuvwxyz .,"
+text = "R.EQJNAUZVSAMPRHD ,LAWUYVVBW".lower()
 variants = []  # possible (variant score, string, keys)
 
 
