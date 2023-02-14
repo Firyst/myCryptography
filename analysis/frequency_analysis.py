@@ -45,6 +45,8 @@ print(replaces)
 print("Common: " + ''.join(replaces.values()))
 print("Crypto: " + ''.join(replaces.keys()))
 
+# write some rules here
+replaces["Я"] ="К"
 # now decrypt text
 decrypted = ""
 for s in crypto_text:

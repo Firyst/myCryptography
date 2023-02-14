@@ -1,8 +1,9 @@
 from cryptos.affine_rec import encrypt
-t = "BBDJ"
+from math import gcd
 
-for i in range(100000):
-    new_t = encrypt(t, "ABCDEFJ", False, 11, 3, 11, 8)
-    if new_t == "JABA":
-        print(i, t)
-    t = new_t
+i = 0
+for a in range(26):
+    if gcd(a, 25) == 1:
+        print(a)
+        i += 1
+print(i)
