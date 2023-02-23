@@ -94,6 +94,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="punctuation">
+          <property name="toolTip">
+           <string>Опция не доступная для шифра Хилла.</string>
+          </property>
           <property name="text">
            <string>Игн. пунктуацию</string>
           </property>
@@ -170,7 +173,7 @@
      <x>0</x>
      <y>0</y>
      <width>700</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>

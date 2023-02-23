@@ -5,6 +5,7 @@ import sys
 import os
 import importlib
 from PyQt5 import QtGui
+from time import sleep
 
 
 class ProgramWindow(QMainWindow):
@@ -41,6 +42,7 @@ class ProgramWindow(QMainWindow):
         module_list = [f for f in os.listdir("cryptos") if os.path.isfile(os.path.join("cryptos", f))]
         for module_name in module_list:
             try:
+                sleep(0.1)
                 module = importlib.import_module(f"cryptos.{module_name[:-3]}")
                 self.modules[module.MODULE_NAME] = module.Crypto(self, ind)
                 self.cipher_selector.addWidget(self.modules[module.MODULE_NAME])
@@ -74,6 +76,12 @@ class ProgramWindow(QMainWindow):
     def change_crypto(self):
         """ Open settings menu for selected cipher method"""
         self.cipher_selector.setCurrentIndex(self.get_current_module().page)
+        if self.get_current_module().SUPPORTS_PUNC:
+            self.punctuation.setEnabled(1)
+            self.punctuation.setToolTip("")
+        else:
+            self.punctuation.setEnabled(0)
+            self.punctuation.setToolTip("Данный шифр не поддерживает опцию")
 
     def get_current_module(self):
         """ Returns currently selected cipher module """

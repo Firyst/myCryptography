@@ -5,6 +5,7 @@ from dialogs import WarnDialog
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget
 MODULE_NAME = "Аффинный"
+SUPPORTS_PUNC = 1
 PUNC = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
 
@@ -44,6 +45,7 @@ class Crypto(QWidget):
     def __init__(self, parent: ProgramWindow, page):
         super().__init__()
         uic.loadUi('resources/affine.ui', self)
+        self.SUPPORTS_PUNC = SUPPORTS_PUNC
         self.parent_window = parent
         self.page = page
         print("init module affine")

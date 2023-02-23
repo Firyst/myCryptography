@@ -8,7 +8,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QTableWidgetItem
 import numpy as np
-MODULE_NAME = "Шифр Хилла"
+MODULE_NAME = "Шифр Хилла (рек.)"
 SUPPORTS_PUNC = 0
 PUNC = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
@@ -19,7 +19,7 @@ class InvalidKeyException(Exception):
     pass
 
 
-def encrypt(message, alph, key, block_size: int) -> str:
+def encrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
     encrypted = ""
 
@@ -28,13 +28,16 @@ def encrypt(message, alph, key, block_size: int) -> str:
 
     det = round(np.linalg.det(key))
     if det == 0:
-        raise ArithmeticError("определитель не равен нулю :(")
+        raise ArithmeticError("определитель равен нулю :(")
 
     if math.gcd(int(det), len(alph)) != 1:
         raise InvalidKeyException
 
     coded = []  # encoded message by indexes
     for s in message:
+        if ignore_punc and s in PUNC:
+            # detect punctuation
+            continue
         coded.append(alph_rev[s])
 
     extend_symbol = 0
@@ -55,7 +58,7 @@ def encrypt(message, alph, key, block_size: int) -> str:
     return encrypted
 
 
-def decrypt(message, alph, key, block_size: int) -> str:
+def decrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     # поиск обратной матрицы по модулю.
     def matrix_invmod(input_matrix, mod):  # Finds the inverse of matrix A by mod p
         def minor(matrix, i, j):  # caclulate minor
@@ -90,7 +93,7 @@ def decrypt(message, alph, key, block_size: int) -> str:
 
     det = round(np.linalg.det(key))
     if det == 0:
-        raise ArithmeticError("определитель не равен нулю :(")
+        raise ArithmeticError("определитель равен нулю :(")
 
     if math.gcd(int(det), len(alph)) != 1:
         raise InvalidKeyException
@@ -99,6 +102,9 @@ def decrypt(message, alph, key, block_size: int) -> str:
 
     coded = []  # encoded message by indexes
     for s in message:
+        if ignore_punc and s in PUNC:
+            # detect punctuation
+            continue
         coded.append(alph_rev[s])
 
     while len(coded) % block_size != 0:
@@ -119,13 +125,14 @@ def decrypt(message, alph, key, block_size: int) -> str:
 class Crypto(QWidget):
     def __init__(self, parent: ProgramWindow, page):
         super().__init__()
-        uic.loadUi('resources/hill.ui', self)
+        uic.loadUi('resources/hill_rec.ui', self)
+        self.SUPPORTS_PUNC = SUPPORTS_PUNC
         self.parent_window = parent
         self.page = page
-        print("init module hill")
+        print("init module hill recursive")
 
-        self.SUPPORTS_PUNC = SUPPORTS_PUNC
-        self.key = list()
+        self.key1 = list()
+        self.key2 = list()
 
         self.block_size.valueChanged.connect(self.set_matrix_size)
         self.matrix_view.cellChanged.connect(self.matrix_changed)
@@ -174,15 +181,21 @@ class Crypto(QWidget):
 
         self.matrix_view.setRowCount(current_size)
         self.matrix_view.setColumnCount(current_size)
+        self.matrix_view2.setRowCount(current_size)
+        self.matrix_view2.setColumnCount(current_size)
         self.key_enter.setMaxLength(current_size ** 2)
         self.matrix_view.resizeColumnsToContents()
-
+        self.matrix_view2.resizeColumnsToContents()
         for iy in range(current_size):
             for ix in range(current_size):
 
                 new_item = QTableWidgetItem("0")  # создаем элемент таблицы со значением
                 new_item.setData(Qt.DisplayRole, 0)
                 self.matrix_view.setItem(iy, ix, new_item)
+
+                new_item = QTableWidgetItem("0")  # создаем элемент таблицы со значением
+                new_item.setData(Qt.DisplayRole, 0)
+                self.matrix_view2.setItem(iy, ix, new_item)
 
     # key updates
 
@@ -224,6 +237,7 @@ class Crypto(QWidget):
         self.update_key(0)
 
     def update_key(self, source):
+        return
         alph = list(self.alph0.text())
         if source:
             # edited table
@@ -279,7 +293,7 @@ class Crypto(QWidget):
         alph = list(self.alph0.text())
         ignore_punc = self.parent_window.punctuation.isChecked()
         try:
-            return decrypt(self.parent_window.cipher_text(), alph, self.key, self.block_size.value())
+            return decrypt(self.parent_window.cipher_text(), alph, ignore_punc, self.key, self.block_size.value())
         except KeyError:
             dialog = WarnDialog("Ошибка", f"Символ отсутствует в заданном алфавите.")
             dialog.exec_()
@@ -295,8 +309,9 @@ class Crypto(QWidget):
 
     def encrypt(self) -> str:
         alph = list(self.alph0.text())
+        ignore_punc = self.parent_window.punctuation.isChecked()
         try:
-            return encrypt(self.parent_window.open_text(), alph, self.key, self.block_size.value())
+            return encrypt(self.parent_window.open_text(), alph, ignore_punc, self.key, self.block_size.value())
         except KeyError:
             dialog = WarnDialog("Ошибка", f"Символ отсутствует в заданном алфавите.")
             dialog.exec_()

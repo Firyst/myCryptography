@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,1">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -67,7 +67,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Ключ</string>
+        <string>Ключи</string>
        </property>
       </widget>
      </item>
@@ -104,6 +104,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QTableWidget" name="matrix_view"/>
+     </item>
+     <item>
+      <widget class="QTableWidget" name="matrix_view2"/>
      </item>
     </layout>
    </item>
