@@ -8,29 +8,34 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QTableWidgetItem
 import numpy as np
+
 MODULE_NAME = "Шифр Хилла (рек.)"
 SUPPORTS_PUNC = 0
 PUNC = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
-sys.setrecursionlimit(2**16)
+sys.setrecursionlimit(2 ** 16)
 
 
 class InvalidKeyException(Exception):
     pass
 
 
-def encrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
+def encrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> str:
     alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
     encrypted = ""
 
-    key = np.array(key)
-    key = key.reshape((block_size, block_size))
+    key1 = np.array(key1)
+    key1 = key1.reshape((block_size, block_size))
 
-    det = round(np.linalg.det(key))
-    if det == 0:
+    key2 = np.array(key2)
+    key2 = key2.reshape((block_size, block_size))
+
+    det1 = round(np.linalg.det(key1))
+    det2 = round(np.linalg.det(key2))
+    if det1 == 0 or det2 == 0:
         raise ArithmeticError("определитель равен нулю :(")
 
-    if math.gcd(int(det), len(alph)) != 1:
+    if math.gcd(int(det1), len(alph)) != 1 or math.gcd(int(det2), len(alph)) != 1:
         raise InvalidKeyException
 
     coded = []  # encoded message by indexes
@@ -46,10 +51,23 @@ def encrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     while len(coded) % block_size != 0:
         coded.append(extend_symbol)  # fill until fits block size
 
+    last_key1 = key1
+    last_key2 = key2
+
     for block_id in range(len(coded) // block_size):
         text_block = np.full((block_size, 1), 0)  # create new vector
         for sym_i in range(block_size):
             text_block[sym_i, 0] = coded[block_id * block_size + sym_i]  # create text block vector
+
+        # keys
+        if block_id == 0:
+            key = last_key1
+        elif block_id == 1:
+            key = last_key2
+        else:
+            key = np.dot(last_key1, last_key2) % len(alph)
+            last_key1, last_key2 = last_key2, key
+        print(block_id, key)
         encrypted_block = np.dot(key, text_block)
 
         for sym_i in range(block_size):
@@ -58,7 +76,7 @@ def encrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     return encrypted
 
 
-def decrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
+def decrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> str:
     # поиск обратной матрицы по модулю.
     def matrix_invmod(input_matrix, mod):  # Finds the inverse of matrix A by mod p
         def minor(matrix, i, j):  # caclulate minor
@@ -88,17 +106,22 @@ def decrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
     decrypted = ""
 
-    key = np.array(key)
-    key = key.reshape((block_size, block_size))
+    key1 = np.array(key1)
+    key1 = key1.reshape((block_size, block_size))
 
-    det = round(np.linalg.det(key))
-    if det == 0:
+    key2 = np.array(key2)
+    key2 = key2.reshape((block_size, block_size))
+
+    det1 = round(np.linalg.det(key1))
+    det2 = round(np.linalg.det(key2))
+    if det1 == 0 or det2 == 0:
         raise ArithmeticError("определитель равен нулю :(")
 
-    if math.gcd(int(det), len(alph)) != 1:
+    if math.gcd(int(det1), len(alph)) != 1 or math.gcd(int(det2), len(alph)) != 1:
         raise InvalidKeyException
 
-    key = matrix_invmod(key, len(alph))  # calculate inverted matrix
+    key1 = matrix_invmod(key1, len(alph))  # calculate inverted matrix
+    key2 = matrix_invmod(key2, len(alph))
 
     coded = []  # encoded message by indexes
     for s in message:
@@ -110,12 +133,24 @@ def decrypt(message, alph, ignore_punc: bool, key, block_size: int) -> str:
     while len(coded) % block_size != 0:
         coded.append(0)  # fill until fits block size
 
+    last_key1 = key1
+    last_key2 = key2
+
     for block_id in range(len(coded) // block_size):
         text_block = np.full((block_size, 1), 0)  # create new vector
         for sym_i in range(block_size):
             text_block[sym_i, 0] = coded[block_id * block_size + sym_i]  # create text block vector
-        decrypted_block = np.dot(key, text_block)
 
+        # keys
+        if block_id == 0:
+            key = last_key1
+        elif block_id == 1:
+            key = last_key2
+        else:
+            key = np.dot(last_key2, last_key1) % len(alph)
+            last_key1, last_key2 = last_key2, key
+        decrypted_block = np.dot(key, text_block)
+        print(block_id, key)
         for sym_i in range(block_size):
             decrypted += alph[int(decrypted_block[sym_i, 0]) % len(alph)]  # convert into text
 
@@ -136,6 +171,7 @@ class Crypto(QWidget):
 
         self.block_size.valueChanged.connect(self.set_matrix_size)
         self.matrix_view.cellChanged.connect(self.matrix_changed)
+        self.matrix_view2.cellChanged.connect(self.matrix_changed)
         self.key_enter.textChanged.connect(self.line_key_changed)
         self.key_enter.editingFinished.connect(self.matrix_changed)  # fill missing symbols
         self.alph0.textChanged.connect(self.alphabet_changed)
@@ -176,19 +212,19 @@ class Crypto(QWidget):
         current_size = self.block_size.value()
         alph = self.alph0.text()
 
+        self.key_enter.setMaxLength(2 * (current_size ** 2))
+
         if alph:
-            self.key_enter.setText(alph[0] * current_size ** 2)
+            self.key_enter.setText(alph[0] * (2 * current_size ** 2))
 
         self.matrix_view.setRowCount(current_size)
         self.matrix_view.setColumnCount(current_size)
         self.matrix_view2.setRowCount(current_size)
         self.matrix_view2.setColumnCount(current_size)
-        self.key_enter.setMaxLength(current_size ** 2)
         self.matrix_view.resizeColumnsToContents()
         self.matrix_view2.resizeColumnsToContents()
         for iy in range(current_size):
             for ix in range(current_size):
-
                 new_item = QTableWidgetItem("0")  # создаем элемент таблицы со значением
                 new_item.setData(Qt.DisplayRole, 0)
                 self.matrix_view.setItem(iy, ix, new_item)
@@ -208,10 +244,15 @@ class Crypto(QWidget):
             dialog.exec_()
             return
 
-        key = np.random.random_integers(1, len(alph), (current_size, current_size))
-        det = round(np.linalg.det(key))
+        key1 = np.random.random_integers(1, len(alph), (current_size, current_size))
+        key2 = np.random.random_integers(1, len(alph), (current_size, current_size))
+        det1 = round(np.linalg.det(key1))
+        det2 = round(np.linalg.det(key2))
         try:
-            if (det == 0) or (math.gcd(int(det), len(alph)) != 1):
+            if (det1 == 0) or (math.gcd(int(det1), len(alph)) != 1):
+                self.generate_random_key()
+                return
+            if (det2 == 0) or (math.gcd(int(det2), len(alph)) != 1):
                 self.generate_random_key()
                 return
         except RecursionError:
@@ -220,11 +261,13 @@ class Crypto(QWidget):
             return
         # set key
         self.matrix_view.blockSignals(1)
+        self.matrix_view2.blockSignals(1)
         for iy in range(current_size):
             for ix in range(current_size):
-                new_item = QTableWidgetItem(str(key[ix, iy]))  # создаем элемент таблицы со значением
-                self.matrix_view.setItem(iy, ix, new_item)
+                self.matrix_view.setItem(iy, ix, QTableWidgetItem(str(key1[ix, iy])))
+                self.matrix_view2.setItem(iy, ix, QTableWidgetItem(str(key2[ix, iy])))
 
+        self.matrix_view.blockSignals(0)
         self.matrix_view.blockSignals(0)
         self.matrix_changed()
 
@@ -237,32 +280,37 @@ class Crypto(QWidget):
         self.update_key(0)
 
     def update_key(self, source):
-        return
         alph = list(self.alph0.text())
         if source:
             # edited table
-            key = []
-            text_key = ""
+            key1 = []
+            key2 = []
+            text_key1 = ""
+            text_key2 = ""
             current_size = self.block_size.value()
 
             for iy in range(current_size):
                 for ix in range(current_size):
                     try:
-                        key.append(int(self.matrix_view.item(iy, ix).text()))
+                        key1.append(int(self.matrix_view.item(iy, ix).text()))
+                        key2.append(int(self.matrix_view2.item(iy, ix).text()))
                         if len(alph) > 1:
-                            text_key += alph[int(self.matrix_view.item(iy, ix).text()) % len(alph)]
+                            text_key1 += alph[int(self.matrix_view.item(iy, ix).text()) % len(alph)]
+                            text_key2 += alph[int(self.matrix_view2.item(iy, ix).text()) % len(alph)]
                     except AttributeError:
                         # matrix is not filled...
                         return
                     except ValueError:
                         dialog = WarnDialog("Ошибка", f"Введено некорректное значение")
                         dialog.exec_()
-                        new_item = QTableWidgetItem("0")  # создаем элемент таблицы со значением
-                        self.matrix_view.setItem(iy, ix, new_item)
+                        self.matrix_view.setItem(iy, ix, QTableWidgetItem("0"))
+                        self.matrix_view2.setItem(ix, iy, QTableWidgetItem("0"))
                         return
-            if key != self.key:
+            if key1 != self.key1 or key2 != self.key2:
                 self.key_enter.blockSignals(1)
-                self.key_enter.setText(text_key)
+                self.key_enter.setText(text_key1 + text_key2)
+                self.key1 = key1
+                self.key2 = key2
                 self.key_enter.blockSignals(0)
         else:
             # edited line key
@@ -276,24 +324,36 @@ class Crypto(QWidget):
                     return
                 key.append(symbol_index)
 
-            while len(key) < self.block_size.value() ** 2:
+            while len(key) < 2 * (self.block_size.value() ** 2):
                 key.append(0)
 
             # fill up the matrix
             self.matrix_view.blockSignals(1)
-            for i, s in enumerate(key):
+            self.matrix_view2.blockSignals(2)
+
+            # key 1
+            for i, s in enumerate(key[:len(key) // 2]):
                 self.matrix_view.setItem(i // self.block_size.value(),
                                          i % self.block_size.value(),
                                          QTableWidgetItem(str(s)))
+            # key 2
+            for i, s in enumerate(key[len(key) // 2:]):
+                self.matrix_view2.setItem(i // self.block_size.value(),
+                                          i % self.block_size.value(),
+                                          QTableWidgetItem(str(s)))
             self.matrix_view.blockSignals(0)
-        if key and key != self.key:
-            self.key = key
+            self.matrix_view2.blockSignals(0)
+            if key:
+                self.key1 = key[:len(key) // 2]
+                self.key2 = key[len(key) // 2:]
+        print(self.key1, self.key2)
 
     def decrypt(self):
         alph = list(self.alph0.text())
         ignore_punc = self.parent_window.punctuation.isChecked()
         try:
-            return decrypt(self.parent_window.cipher_text(), alph, ignore_punc, self.key, self.block_size.value())
+            return decrypt(self.parent_window.cipher_text(), alph, ignore_punc, self.key1, self.key2,
+                           self.block_size.value())
         except KeyError:
             dialog = WarnDialog("Ошибка", f"Символ отсутствует в заданном алфавите.")
             dialog.exec_()
@@ -311,7 +371,8 @@ class Crypto(QWidget):
         alph = list(self.alph0.text())
         ignore_punc = self.parent_window.punctuation.isChecked()
         try:
-            return encrypt(self.parent_window.open_text(), alph, ignore_punc, self.key, self.block_size.value())
+            return encrypt(self.parent_window.open_text(), alph, ignore_punc, self.key1, self.key2,
+                           self.block_size.value())
         except KeyError:
             dialog = WarnDialog("Ошибка", f"Символ отсутствует в заданном алфавите.")
             dialog.exec_()
@@ -324,4 +385,3 @@ class Crypto(QWidget):
             dialog = WarnDialog("Ошибка", f"Определитель матрицы-ключа должен быть взаимно прост с мощностью алфавита.")
             dialog.exec_()
             return ""
-

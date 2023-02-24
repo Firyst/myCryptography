@@ -31,5 +31,6 @@ def matrix_invmod(input_matrix, mod):  # Finds the inverse of matrix A by mod p
 
 
 
-test = np.array([[1, 2, 5], [1, 3, 7], [2, 5, 10]])
+test = np.array([[29, 2, 5], [1, 3, 7], [2, 5, 10]])
 print(matrix_invmod(test, 27))
+print(test % 27)

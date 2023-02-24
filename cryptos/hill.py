@@ -169,12 +169,13 @@ class Crypto(QWidget):
         current_size = self.block_size.value()
         alph = self.alph0.text()
 
+        self.key_enter.setMaxLength(current_size ** 2)
+
         if alph:
             self.key_enter.setText(alph[0] * current_size ** 2)
 
         self.matrix_view.setRowCount(current_size)
         self.matrix_view.setColumnCount(current_size)
-        self.key_enter.setMaxLength(current_size ** 2)
         self.matrix_view.resizeColumnsToContents()
 
         for iy in range(current_size):
