@@ -65,7 +65,7 @@ def encrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> st
         elif block_id == 1:
             key = last_key2
         else:
-            key = np.dot(last_key1, last_key2) % len(alph)
+            key = np.dot(last_key2, last_key1) % len(alph)
             last_key1, last_key2 = last_key2, key
         print(block_id, key)
         encrypted_block = np.dot(key, text_block)
@@ -147,7 +147,7 @@ def decrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> st
         elif block_id == 1:
             key = last_key2
         else:
-            key = np.dot(last_key2, last_key1) % len(alph)
+            key = np.dot(last_key1, last_key2) % len(alph)
             last_key1, last_key2 = last_key2, key
         decrypted_block = np.dot(key, text_block)
         print(block_id, key)
