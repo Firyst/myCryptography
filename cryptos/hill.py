@@ -48,7 +48,7 @@ def encrypt(message, alph, key, block_size: int) -> str:
         for sym_i in range(block_size):
             text_block[sym_i, 0] = coded[block_id * block_size + sym_i]  # create text block vector
         encrypted_block = np.dot(key, text_block)
-
+        print(block_id, text_block, encrypted_block % len(alph))
         for sym_i in range(block_size):
             encrypted += alph[encrypted_block[sym_i, 0] % len(alph)]  # convert into text
 
@@ -96,7 +96,7 @@ def decrypt(message, alph, key, block_size: int) -> str:
         raise InvalidKeyException
 
     key = matrix_invmod(key, len(alph))  # calculate inverted matrix
-
+    print(key)
     coded = []  # encoded message by indexes
     for s in message:
         coded.append(alph_rev[s])
@@ -198,6 +198,7 @@ class Crypto(QWidget):
 
         key = np.random.random_integers(1, len(alph), (current_size, current_size))
         det = round(np.linalg.det(key))
+        print(det)
         try:
             if (det == 0) or (math.gcd(int(det), len(alph)) != 1):
                 self.generate_random_key()

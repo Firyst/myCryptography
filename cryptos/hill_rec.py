@@ -21,6 +21,7 @@ class InvalidKeyException(Exception):
 
 
 def encrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> str:
+    print("ENCRYPT")
     alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
     encrypted = ""
 
@@ -67,8 +68,9 @@ def encrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> st
         else:
             key = np.dot(last_key2, last_key1) % len(alph)
             last_key1, last_key2 = last_key2, key
-        print(block_id, key)
+
         encrypted_block = np.dot(key, text_block)
+        print("BLOCK", block_id, '\n', key, '\n', text_block, '\n', encrypted_block % len(alph))
 
         for sym_i in range(block_size):
             encrypted += alph[encrypted_block[sym_i, 0] % len(alph)]  # convert into text
@@ -78,6 +80,7 @@ def encrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> st
 
 def decrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> str:
     # поиск обратной матрицы по модулю.
+    print("DECRYPT")
     def matrix_invmod(input_matrix, mod):  # Finds the inverse of matrix A by mod p
         def minor(matrix, i, j):  # caclulate minor
             matrix = np.array(matrix)
@@ -150,7 +153,7 @@ def decrypt(message, alph, ignore_punc: bool, key1, key2, block_size: int) -> st
             key = np.dot(last_key1, last_key2) % len(alph)
             last_key1, last_key2 = last_key2, key
         decrypted_block = np.dot(key, text_block)
-        print(block_id, key)
+        print("BLOCK", block_id, '\n', key, '\n', text_block, '\n', decrypted_block % len(alph))
         for sym_i in range(block_size):
             decrypted += alph[int(decrypted_block[sym_i, 0]) % len(alph)]  # convert into text
 
@@ -244,8 +247,8 @@ class Crypto(QWidget):
             dialog.exec_()
             return
 
-        key1 = np.random.random_integers(1, len(alph), (current_size, current_size))
-        key2 = np.random.random_integers(1, len(alph), (current_size, current_size))
+        key1 = np.random.random_integers(0, len(alph), (current_size, current_size))
+        key2 = np.random.random_integers(0, len(alph), (current_size, current_size))
         det1 = round(np.linalg.det(key1))
         det2 = round(np.linalg.det(key2))
         try:
@@ -346,7 +349,6 @@ class Crypto(QWidget):
             if key:
                 self.key1 = key[:len(key) // 2]
                 self.key2 = key[len(key) // 2:]
-        print(self.key1, self.key2)
 
     def decrypt(self):
         alph = list(self.alph0.text())
