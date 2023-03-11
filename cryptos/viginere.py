@@ -18,7 +18,6 @@ def encrypt(message, alph, key, method, ignore_punc: bool):
 
     if method == 1:
         key += message  # generate open text key
-
     i = 0
     for s in message:
         if ignore_punc and s in PUNC:
@@ -27,6 +26,7 @@ def encrypt(message, alph, key, method, ignore_punc: bool):
         else:
             if method <= 1:
                 encrypted += alph[(alph_rev[s] + alph_rev[key[i]]) % len(alph)]
+                print(s, alph_rev[s], alph_rev[key[i]], (alph_rev[s] + alph_rev[key[i]]) % len(alph))
                 i += 1
             elif method == 2:
                 if i < len(key):
@@ -81,6 +81,8 @@ class Crypto(QWidget):
         # Bind button
         self.key_generate.clicked.connect(self.generate_random_key)
 
+        self.key_input.textChanged.connect(self.key_size_changed)
+
         # load alphabets.
         self.alphabet_sel.addItem("Выбрать")
         self.alphabet_sel.addItem("Авто")
@@ -103,9 +105,18 @@ class Crypto(QWidget):
         self.alph0.setText(alph)
         self.alphabet_sel.setCurrentIndex(0)
 
+    def key_size_changed(self):
+        current_key_size = len(self.key_input.text())
+        if current_key_size:
+            self.key_len.setValue(current_key_size)
+
     def get_key_method(self, msg_len: int):
         key = self.key_input.text()
         method = self.key_select.currentIndex()
+        if not key:
+            dialog = WarnDialog("Ошибка", f"Ключ не задан")
+            dialog.exec_()
+            return ""
         if method == 0:
             key *= (msg_len // len(key) + 1)
         return key, method
@@ -133,6 +144,8 @@ class Crypto(QWidget):
             dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
             dialog.exec_()
             return ""
+        except ValueError:
+            pass
 
     def decrypt(self):
         ignore_punc = self.parent_window.punctuation.isChecked()
@@ -144,3 +157,5 @@ class Crypto(QWidget):
             dialog = WarnDialog("Ошибка", f"Символ отсутсвует в заданном алфавите.")
             dialog.exec_()
             return ""
+        except ValueError:
+            pass
