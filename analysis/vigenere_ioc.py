@@ -1,17 +1,22 @@
 from string import punctuation
 
-INPUT_TEXT = """AIMWEJZVNEGRWFOUEAILTLKFWILUVHHZULTLLEAIFAIFPJYFFOYXADVFVMFXVWDABPKBAZNMLFTSDYIHKEXABNCSWWABMQGHLGUYZJJGFHEPSHEEHALADKFHMPSEXFYIFTBWEHHOTOGBWIDADYQUXEZUEFVXTWJGESYPHDGYVLPSDVNFUDDUWBAIDSOOQLHOLXWTLUCLQUTLUYVJZQABZMISZKHLLKJMSMSGSCEABLLVDQZBTKXWUYNZLYKMJIYKKEYHNTGDVQCIFLBQFVVPOYKTKNZVYWFVMWWUHFVMWWUHBLLNZQFOLNZVHWMTUJLXWDLMEZUJGIZZJYFFOUEKBWQWIQVUSFOQSSJVDLUXKCSKJIXWMZQUQPZQNQZBFXVDQKIQXJZUZGZJJSXJITDCMEAATNUMEWUFKU"""
+INPUT_TEXT = ""
 
 for s in punctuation + " \n":
     INPUT_TEXT = INPUT_TEXT.replace(s, "")
 del s
 
-print(f"Длина алфавита: {len(set(INPUT_TEXT))}")
+if not INPUT_TEXT:
+    INPUT_TEXT = input("Введите шифртекст: ")
+
 print("Рассчет индексов совпадений...")
 
 
 def check_language_by_ioc(value):
-    iocs = {"EN": 0.0644, "RU": 0.0553}  # defaults
+    if len(INPUT_TEXT) > 999:
+        iocs = {"EN": 0.0644, "RU": 0.0553}  # defaults
+    else:
+        iocs = {"!": 0.05, "!": 0.06}  # defaults
 
     res = ""
     minim = 9999
@@ -31,7 +36,7 @@ def calculate_coindence(text):
     ioc = 0
     for s in coincidence.keys():
         ioc += (coincidence[s] * (coincidence[s] - 1))
-    return ioc / (len(text) * (len(text) - 1))
+    return ioc / (len(text) * max(1, len(text) - 1))
 
 
 values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -43,5 +48,5 @@ for key_len in range(2, 20):
 
 
 print('Длин\t' + "\t\t".join(map(str, range(2, 20))))
-print('Знач\t' + "\t".join(map(lambda x: str(round(x, 4)), values)))
-print('Язык\t' + "\t\t".join(map(check_language_by_ioc, values)))
+print('Знач\t' + "".join(map(lambda x: str(round(x, 4)).ljust(8, " "), values)))
+print('\t\t' + "\t\t".join(map(check_language_by_ioc, values)))

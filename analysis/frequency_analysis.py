@@ -23,15 +23,18 @@ def scan_text(text, whitelist=WHITELIST):
 SCAN_FILE = "data/russian1.txt"
 MSG_FILE = "data/message1.txt"
 
+
+
 with open(SCAN_FILE, "r", encoding="utf8") as f:
-    default_data = scan_text(f.read().upper())
+    # default_data = scan_text(f.read().upper())
+    bruh = f.read().upper()
 
 with open(MSG_FILE, "r", encoding="utf8") as f:
     crypto_text = f.read().upper()
     crypto_data = scan_text(crypto_text)
 
 with open(MSG_FILE, "w", encoding="utf8") as f:
-    f.write(filter_text(crypto_text))
+    f.write(filter_text(bruh))
 
 replaces = dict()
 freq1 = sorted(list(default_data.items()), key=lambda x: x[1], reverse=True)
