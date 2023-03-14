@@ -2,7 +2,7 @@ from cryptos import vigenere
 import vigenere_opentext
 
 INPUT_TEXT = ""
-ALPH = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ .,"
+ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
 
 if not INPUT_TEXT:
     INPUT_TEXT = input("Введите шифртекст: ")

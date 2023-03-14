@@ -1,9 +1,9 @@
 import numpy as np
 
-interactive = False
+interactive = True
 plain_text = "VERY SECRET INFORM"
 cipher_text ="KBTYJHMIWGCFCJMQOJ"
-alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ .,"
 alph_rev = dict(zip(alph, range(len(alph))))  # reversed alphabet
 block = 3
 
@@ -54,18 +54,6 @@ def to_matrix(text, size):
 
 def to_vector(text, size):
     return to_matrix(text, size).reshape(1, size ** 2).transpose()
-
-
-def solution_matrix(input_matrix, size):
-    matrix = np.zeros((size ** 2, size ** 2))
-
-    for i in range(size):
-        for j in range(size):
-            for mv in range(0, size):
-                mv2 = mv * size
-                matrix[i + mv2, j + mv2] = input_matrix[j, i]
-    # matrix = matrix.transpose()
-    return matrix
 
 
 if interactive:

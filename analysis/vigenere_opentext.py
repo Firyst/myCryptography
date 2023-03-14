@@ -68,3 +68,7 @@ if __name__ == "__main__":
         found_key = (repeated_key_length(text, text_piece, text_pos, ALPH))
         print("Найденный ключ:", found_key)
         print("Сообщение:", vigenere.decrypt(text, ALPH, found_key * (len(text) // len(found_key) + 1), 0, False))
+    elif mode == "1":
+        found_key = (opentext_key_attack(text, text_piece, text_pos, int(input("Введите длину ключа: ")), ALPH))
+        print("Найденный ключ:", found_key)
+        print("Сообщение:", vigenere.decrypt(text, ALPH, found_key * (len(text) // len(found_key) + 1), 0, False))

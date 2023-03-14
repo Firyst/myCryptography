@@ -57,8 +57,8 @@ def encrypt(message, alph, key, block_size: int) -> str:
 
 def decrypt(message, alph, key, block_size: int) -> str:
     # поиск обратной матрицы по модулю.
-    def matrix_invmod(input_matrix, mod):  # Finds the inverse of matrix A by mod p
-        def minor(matrix, i, j):  # caclulate minor
+    def matrix_invmod(input_matrix, mod):  # обратная по модулю
+        def minor(matrix, i, j):  # расчет минора
             matrix = np.array(matrix)
             minor = np.zeros(shape=(len(matrix) - 1, len(matrix) - 1))
             p = 0
